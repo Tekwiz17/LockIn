@@ -40,12 +40,13 @@ public static class SmokeTest {
      if(engine.Active)throw new InvalidOperationException("Published pause did not release Focus.");
      blocker.Tick();engine.PauseOrResume();engine.Stop();
      if(new Engine(directory).Data.Session!=null)throw new InvalidOperationException("Published stop did not persist.");
-     Console.WriteLine("Published Windows EXE smoke check passed: WPF views, icon, tray initialization, Win32 enumeration, DPAPI, timers and persistence.");
      app.Shutdown(0);
     } catch(Exception e){Console.Error.WriteLine(e);app.Shutdown(1);}
     finally {blocker?.Dispose();}
    }));
-   return app.Run();
+   var result=app.Run();
+   if(result==0)Console.WriteLine("Published Windows EXE smoke check passed: WPF views, icon, tray initialization and shutdown, Win32 enumeration, DPAPI, timers and persistence.");
+   return result;
   } catch(Exception e){Console.Error.WriteLine(e);return 1;}
   finally {if(Directory.Exists(directory))Directory.Delete(directory,true);}
  }
