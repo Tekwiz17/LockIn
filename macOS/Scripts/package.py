@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+from pathlib import Path
+from zipfile import ZipFile, ZIP_DEFLATED
+root=Path(__file__).resolve().parents[1]
+out=root.parent/'LockIn-Deliverables';out.mkdir(exist_ok=True)
+def pack(dest,source,prefix):
+ with ZipFile(dest,'w',ZIP_DEFLATED) as z:
+  for p in sorted(source.rglob('*')):
+   rel=p.relative_to(source)
+   if not p.is_file() or any(x in {'Build','.build','.git','__pycache__','node_modules','.DS_Store'} for x in rel.parts):continue
+   z.write(p,str(Path(prefix)/rel))
+pack(out/'LockIn-Mac.zip',root,'LockIn')
+pack(out/'LockIn-Chrome.zip',root/'BrowserExtensions/Chrome','LockIn-Chrome')
+(out/'README.txt').write_text('LockIn 1.6.2\n\nUnzip the Mac ZIP, open LockIn/LockIn.xcodeproj, select LockIn → My Mac, and Run. Replace Chrome files in the SAME unpacked folder and Reload. Safari updates with the rebuilt app. Existing saved rules, history and pairing remain.\n\nNew: ordinary Google searches switch to Web results during Block AI to prevent Overviews; Images and explicit categories remain available. Bottom Quit LockIn ends the session and removes recovery before true termination. Exit checks and Nuclear emergency quota still apply. Extension and blocking screens share purple #6c63ff.\n\nBrowser update: collapsed/generating Google Overview detection, a 100 ms local AI Mode navigation check, simpler network rules and immediate reconnect. Paired Pause/Stop can authenticate directly while polling reconnects. Reload extensions and open Google tabs. If the old Swift warnings repeat, replace project sources and Clean Build Folder; this ZIP imports Combine and uses explicit Binding setters.\n\nRemoved Pause/Unblock from blocked-app screens. Active Focus checks visible blocked windows every 0.3 seconds and hides them even without focus/clicking. Pause/Stop remain available through LockIn and the extension as permitted.\n\nBlock AI is inside Edit only. Nuclear Mode is in Edit and main, hidden for indefinite Focus. First enabling requires macOS authentication (login password or supported Touch ID), then choose future authentication behavior. LockIn never sees your password.\n\nHarder exit checks: timed mental math, longer Stop/Nuclear checks, five easier Pause rounds. Keep Focusing cancels at any point. Ordinary pauses/stops stay unlimited. Nuclear has no Pause and allows two successfully completed and confirmed emergency exits per month.\n\nSimplified extension regexes and added compatibility fallback so rejected network rules cannot stop sync/Google AI hiding. Overview detection expanded; live Google coverage remains best effort. Update both extensions.\n\n55 portable tests passed, plus Swift grammar and project checks. Native Xcode compilation, macOS authentication and unfocused-window enforcement cannot be verified in this environment. Run Scripts/verify-mac.sh and follow TESTING.md.\n\nCmd-Q hides LockIn while a session exists. App/watchdog recovery remains best effort, not Force Quit/Terminal proof: macOS owners can disable both or alter local files. See README.md for limits and recovery behavior.\n')
+print('Created LockIn-Mac.zip, LockIn-Chrome.zip, README.txt')

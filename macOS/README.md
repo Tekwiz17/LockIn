@@ -1,18 +1,10 @@
 # LockIn 1.6.2
 
-LockIn is a local-first macOS focus app that blocks distracting apps and websites while you focus, then unlocks them during breaks. It includes **Block** and **Only Allow** rules, Focus and Pomodoro timers, Nuclear Mode, Block AI, Safari/Chrome extensions, optional Dock hiding, notifications, history, and menu-bar controls.
-
-## Repository layout
-
-- `macOS/` — complete Xcode project for the LockIn Mac app, Safari Web Extension, Dock recovery helper, shared browser resources, tests, and scripts.
-- `Chrome/` — ready-to-load Chrome/Chromium extension.
-
-Requires **macOS 14+ and Xcode 15+**. LockIn is designed for personal/local use and does **not** require the paid Apple Developer Program, Screen Time API, an account, or third-party dependencies.
-
+A local Mac focus timer with app shields, Safari and Chromium website blocking, Block / Only Allow presets, global Never Block, phase notifications, history, and menu-bar controls. Requires **macOS 14+ and Xcode 15+**. No account, paid Developer Program, Screen Time API, or third-party dependency is required to build.
 
 ## Open LockIn
 
-1. Clone/download this repository and open **macOS/LockIn.xcodeproj**.
+1. Unzip **LockIn-Mac.zip** and open **LockIn/LockIn.xcodeproj**.
 2. Select the **LockIn** scheme and **My Mac**, then **Product → Run**.
 3. Both targets use local ad-hoc signing (`Sign to Run Locally`). Leave Team empty. If Xcode has overridden signing, select each target → Signing & Capabilities → turn off automatic signing → Signing Certificate **Sign to Run Locally**. Do not select a provisioning profile.
 4. Start with **Custom**: enter Focus / Short Break / Long Break minutes, use the prominent pencil **Edit** button for apps, websites and Block / Only Allow rules. No built-in presets are created. **Presets → Save Current as New Preset…** saves a reusable setup. First-run setup can optionally save one too.
@@ -31,8 +23,8 @@ The embedded **LockInSafari** target builds automatically with the app. No proje
 
 ## Chrome / Chromium
 
-1. Use the **Chrome/** folder from this repository (or copy it somewhere permanent).
-2. Open **chrome://extensions**, turn on **Developer Mode**, select **Load unpacked**, and choose the **Chrome** folder containing `manifest.json`.
+1. Unzip **LockIn-Chrome.zip**.
+2. Open **chrome://extensions**, turn on **Developer Mode**, select **Load unpacked**, and choose the **LockIn-Chrome** folder containing `manifest.json`.
 3. Allow site access on all sites. Pair below. Other Chromium browsers use their own Extensions page. Chrome 120+ is required.
 
 ## Connect each browser
@@ -53,7 +45,7 @@ The setup heading is simply **Name · Edit**. The pencil is a prominent button. 
 
 For indefinite Focus, browser state carries a renewable **90-second deadline**, refreshed while LockIn runs. The extensions enforce that lease and label it Indefinite Focus. If LockIn stops responding, cached restrictions expire after the last lease, subject to browser scheduling. This avoids an endless cached website lock. Ordinary Quit no longer ends a session; it hides LockIn until you stop through the app or extension. Existing older extensions can enforce these finite leases; update to see the indefinite label.
 
-For Chrome, update the files in your existing unpacked extension folder from **Chrome/**, then Reload it in `chrome://extensions`. Keeping the same folder preserves pairing. Safari resources are embedded in the rebuilt Mac app.
+For Chrome, replace files inside the existing unpacked extension folder using the new Chrome ZIP, then Reload in chrome://extensions. Keeping the same folder preserves pairing. Safari resources are embedded in the rebuilt Mac app.
 
 ## Preset management
 
