@@ -7,6 +7,8 @@ import SwiftUI
     @State private var showHistory = false
     @State private var confirmEnd = false
     @State private var confirmQuit = false
+    @State private var addingTime=false
+    @State private var extraMinutes=5
     @State private var confirmNuclear = false
     var wantsNuclear: Bool { controller.preset.nuclearEnabled == true && !controller.indefinite }
     @State private var showPresets = false
@@ -91,6 +93,9 @@ import SwiftUI
                     Spacer(minLength: 0)
                     Text("Today · \(Int(controller.today.reduce(0) { $0 + $1.actual }) / 60) min focused · \(controller.today.filter(\.completed).count) completed")
                         .font(.callout).foregroundStyle(.secondary)
+                    if controller.data.session != nil && !controller.indefinite {
+                        Button("Add Time…") { addingTime=true }.buttonStyle(.bordered).disabled(controller.authenticating)
+                    }
                     if controller.data.session == nil {
                         Button("Quit LockIn") { confirmQuit=true }
                             .buttonStyle(.bordered).controlSize(.regular).padding(.top,8)
@@ -116,6 +121,13 @@ import SwiftUI
             Button("Lock In for \(controller.preset.focus) minutes", role: .destructive) { controller.startNuclear() }
         } message: {
             Text("For this session, pause and rule edits are locked. Ending early requires an attention check and uses one of two monthly emergency exits. Closing the window keeps Focus running; a background watchdog reopens LockIn if it quits. It unlocks automatically after \(controller.preset.focus) minutes. Allow the background item if macOS asks, and keep the app in this location.\n\nExtensions and background items can still be disabled in macOS. Nothing runs while your Mac is asleep or powered off; the deadline still passes.")
+        }
+        .sheet(isPresented:$addingTime) {
+            VStack(spacing:20) {
+                Text("Add time to this session").font(.title2)
+                Stepper("\(extraMinutes) minutes",value:$extraMinutes,in:1...180)
+                HStack { Button("Cancel") { addingTime=false }; Button("Add Time") { addingTime=false;controller.addTime(minutes:extraMinutes) }.buttonStyle(.borderedProminent) }
+            }.padding(28).frame(width:360)
         }
         .alert("Quit LockIn?", isPresented: $confirmQuit) {
             Button("Cancel", role: .cancel) {}

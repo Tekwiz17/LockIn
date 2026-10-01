@@ -15,8 +15,8 @@ for name in ('Chrome', 'Safari'):
     if dest.exists(): shutil.rmtree(dest)
     shutil.copytree(root / 'BrowserExtensions/Shared', dest)
     manifest = {
-        'manifest_version': 3, 'name': 'LockIn', 'version': '1.6.3',
-        'description': 'Your Mac focus sessions, in your browser. Local sync only.',
+        'manifest_version': 3, 'name': 'LockIn', 'version': '1.7.0',
+        'description': 'Your focus sessions, in your browser. Local sync only.',
         'permissions': ['storage', 'alarms', 'tabs', 'declarativeNetRequest'],
         'host_permissions': ['http://*/*', 'https://*/*'],
         'action': {'default_title': 'LockIn', 'default_popup': 'popup.html', 'default_icon': {'16':'icons/16.png','32':'icons/32.png'}},

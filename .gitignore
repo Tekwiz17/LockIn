@@ -6,3 +6,6 @@ node_modules/
 *.xcuserstate
 xcuserdata/
 LockIn-Deliverables/
+bin/
+obj/
+publish/

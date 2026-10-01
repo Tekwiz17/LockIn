@@ -65,7 +65,7 @@ def fmt(v,level=0):
  if isinstance(v,int):return str(v)
  return json.dumps(v)
 (root/'LockIn.xcodeproj/project.pbxproj').write_text('// !$*UTF8*$!\n'+fmt({'archiveVersion':1,'classes':{},'objectVersion':56,'objects':objects,'rootObject':projectID})+'\n')
-baseInfo={'CFBundleDevelopmentRegion':'en','CFBundleExecutable':'$(EXECUTABLE_NAME)','CFBundleIdentifier':'$(PRODUCT_BUNDLE_IDENTIFIER)','CFBundleInfoDictionaryVersion':'6.0','CFBundleName':'$(PRODUCT_NAME)','CFBundleShortVersionString':'1.6.3','CFBundleVersion':'10','LSMinimumSystemVersion':'$(MACOSX_DEPLOYMENT_TARGET)'}
+baseInfo={'CFBundleDevelopmentRegion':'en','CFBundleExecutable':'$(EXECUTABLE_NAME)','CFBundleIdentifier':'$(PRODUCT_BUNDLE_IDENTIFIER)','CFBundleInfoDictionaryVersion':'6.0','CFBundleName':'$(PRODUCT_NAME)','CFBundleShortVersionString':'1.7.0','CFBundleVersion':'11','LSMinimumSystemVersion':'$(MACOSX_DEPLOYMENT_TARGET)'}
 appInfo={**baseInfo,'CFBundlePackageType':'APPL','NSPrincipalClass':'NSApplication','NSHighResolutionCapable':True,'LSApplicationCategoryType':'public.app-category.productivity','CFBundleURLTypes':[{'CFBundleURLName':'com.lockin.open','CFBundleURLSchemes':['lockin']}], 'NSAppTransportSecurity':{'NSAllowsLocalNetworking':True}}
 extInfo={**baseInfo,'CFBundlePackageType':'XPC!','CFBundleDisplayName':'LockIn','NSExtension':{'NSExtensionPointIdentifier':'com.apple.Safari.web-extension','NSExtensionPrincipalClass':'$(PRODUCT_MODULE_NAME).SafariWebExtensionHandler'},'NSAppTransportSecurity':{'NSAllowsLocalNetworking':True}}
 for path,data in [('MacApp/Info.plist',appInfo),('SafariExtension/Info.plist',extInfo),('SafariExtension/LockInSafari.entitlements',{'com.apple.security.app-sandbox':True,'com.apple.security.network.client':True})]:

@@ -122,7 +122,7 @@ enum CredentialStore {
         guard parts.count == 3, let host = headers["host"], ["127.0.0.1:19287", "localhost:19287"].contains(host) else { reply(c, id, code: 400, object: ["error": "Invalid request"]); return }
         let method = String(parts[0]); let target = String(parts[1])
         // No browser-site CORS, no permissive preflight, no DNS-rebinding Host names.
-        if let origin = headers["origin"], !origin.hasPrefix("chrome-extension://"), !origin.hasPrefix("safari-web-extension://") {
+        if let origin = headers["origin"], !origin.hasPrefix("chrome-extension://"), !origin.hasPrefix("safari-web-extension://"), !origin.hasPrefix("moz-extension://") {
             reply(c, id, code: 403, object: ["error": "Extension access only"]); return
         }
         guard let url = URLComponents(string: "http://127.0.0.1" + target) else { c.cancel(); return }

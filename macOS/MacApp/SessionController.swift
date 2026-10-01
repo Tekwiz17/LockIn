@@ -241,6 +241,36 @@ import AppKit
         else { s.pausedRemaining = s.remaining(at: Date()); s.endDate = nil }
         data.session = s; now = Date(); changed()
     }
+    func addTime(minutes: Int) {
+        tick()
+        guard let session=data.session, !session.isIndefinite, (1...180).contains(minutes), !authenticating else { return }
+        let id=session.id; let phase=session.phase; let started=session.startedAt
+        if nuclearLocked && data.preferences.requireNuclearAuthentication != false {
+            authenticating=true
+            Task { @MainActor in
+                defer { authenticating=false }
+                do { try await MacAuthentication.verify(); applyAddedTime(minutes:minutes, sessionID:id, phase:phase, started:started) }
+                catch { error="Time wasn't added: \(error.localizedDescription)" }
+            }
+        } else { applyAddedTime(minutes:minutes, sessionID:id, phase:phase, started:started) }
+    }
+    private func applyAddedTime(minutes: Int, sessionID: UUID, phase: Phase, started: Date) {
+        tick()
+        guard var session=data.session, session.id==sessionID, session.phase==phase, session.startedAt==started, !session.isIndefinite else { return }
+        let previous=data
+        guard session.addTime(minutes:minutes, at:Date()) else { return }
+        data.session=session; data.revision += 1
+        do {
+            try JSONEncoder().encode(data).write(to:file,options:.atomic)
+            if session.nuclear == true, let end=session.endDate { try NuclearWatchdog.install(until:end) }
+            now=Date(); onChange?()
+        } catch {
+            data=previous
+            try? JSONEncoder().encode(previous).write(to:file,options:.atomic)
+            if previous.session?.nuclear == true, let end=previous.session?.endDate { try? NuclearWatchdog.install(until:end) }
+            error="Time couldn't be saved: \(error.localizedDescription)"
+        }
+    }
     func startWaiting() {
         guard var s = data.session, s.waiting else { return }
         s.waiting = false; s.startedAt = Date(); s.endDate = Date().addingTimeInterval(s.planned)

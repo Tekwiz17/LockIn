@@ -82,6 +82,15 @@ struct Session: Codable {
     func locksControls(at date: Date) -> Bool { nuclear == true && enforcing && remaining(at: date) > 0 }
     var isPaused: Bool { pausedRemaining != nil }
     func remaining(at now: Date) -> TimeInterval { max(0, pausedRemaining ?? endDate?.timeIntervalSince(now) ?? planned) }
+    mutating func addTime(minutes: Int, at now: Date) -> Bool {
+        guard (1...180).contains(minutes), !isIndefinite,
+              waiting || isPaused || (endDate.map { $0 > now } ?? false) else { return false }
+        let seconds=Double(minutes)*60
+        planned += seconds
+        if let paused=pausedRemaining { pausedRemaining=paused+seconds }
+        else if let end=endDate { endDate=end.addingTimeInterval(seconds) }
+        return true
+    }
     var enforcing: Bool { phase == .focus && !isPaused && !waiting && (endDate != nil || isIndefinite) }
 }
 struct HistoryEntry: Codable, Identifiable {

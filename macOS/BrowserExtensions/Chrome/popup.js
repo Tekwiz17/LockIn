@@ -34,7 +34,7 @@ async function render() {
   } catch { el('error').textContent = 'The extension could not start. Reload it from browser extension settings.'; }
 }
 el('pair').addEventListener('submit', async e => {
-  e.preventDefault(); busy = true; el('connect').disabled = true; el('error').textContent = 'Approve the connection in the LockIn Mac app.';
+  e.preventDefault(); busy = true; el('connect').disabled = true; el('error').textContent = 'Approve the connection in the LockIn desktop app.';
   try { const result = await api.runtime.sendMessage({type: 'pair', code: el('code').value}); if (result.error) throw new Error(result.error); }
   catch (e) { el('error').textContent = e.message; }
   finally { busy = false; el('connect').disabled = false; }

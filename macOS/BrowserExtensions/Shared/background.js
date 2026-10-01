@@ -97,7 +97,7 @@ async function connectLoop(epoch) {
     if (epoch === generation) retryTimer = setTimeout(() => connectLoop(epoch), 60);
   } catch (e) {
     if (epoch !== generation) return;
-    connected = false; lastError = e.message === 'Failed to fetch' ? 'LockIn is unavailable. Open the Mac app; we’ll keep trying.' : e.message;
+    connected = false; lastError = e.message === 'Failed to fetch' ? 'LockIn is unavailable. Open the desktop app; we’ll keep trying.' : e.message;
     if (!R.active(state)) await enqueue(installPolicy);
     retryTimer = setTimeout(() => connectLoop(epoch), 5000);
   }

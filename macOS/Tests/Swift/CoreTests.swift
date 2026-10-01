@@ -44,6 +44,29 @@ final class CoreTests: XCTestCase {
         s.waiting = false; s.phase = .shortBreak; s.endDate = start.addingTimeInterval(300)
         XCTAssertFalse(s.enforcing)
     }
+    func testAddedTimeIsSavedWithoutResumingOrChangingSession() throws {
+        let now=Date(timeIntervalSince1970:1000)
+        var session=Session(presetID:UUID(), startedAt:now, endDate:now.addingTimeInterval(600), planned:600)
+        session.nuclear=true
+        let id=session.id
+        XCTAssertTrue(session.addTime(minutes:5, at:now))
+        XCTAssertEqual(session.endDate, now.addingTimeInterval(900))
+        XCTAssertEqual(session.planned,900)
+        XCTAssertEqual(session.id,id)
+        session.pausedRemaining=120; session.endDate=nil
+        XCTAssertTrue(session.addTime(minutes:2, at:now))
+        XCTAssertEqual(session.pausedRemaining,240)
+        XCTAssertNil(session.endDate)
+        let saved=try JSONDecoder().decode(Session.self, from:JSONEncoder().encode(session))
+        XCTAssertEqual(saved.pausedRemaining,240)
+        session.pausedRemaining=nil; session.waiting=true
+        XCTAssertTrue(session.addTime(minutes:1, at:now))
+        session.waiting=false; session.endDate=now.addingTimeInterval(-1)
+        XCTAssertFalse(session.addTime(minutes:1, at:now))
+        session.activityMode = .focus; session.indefinite=true
+        XCTAssertFalse(session.addTime(minutes:5, at:now))
+        XCTAssertFalse(session.addTime(minutes:181, at:now))
+    }
     func testLongBreakCadence() {
         XCTAssertEqual(Phase.focus.next(completed: 2, every: 4).phase, .shortBreak)
         XCTAssertEqual(Phase.focus.next(completed: 3, every: 4).phase, .longBreak)
