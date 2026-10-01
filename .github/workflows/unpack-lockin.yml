@@ -1,0 +1,47 @@
+name: Unpack LockIn source
+
+on:
+  push:
+    branches:
+      - lockin-upload
+    paths:
+      - "_lockin_payload/**"
+      - ".github/workflows/unpack-lockin.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out staging branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reconstruct and verify source archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat _lockin_payload/part* > /tmp/lockin.b64
+          echo "a6eaed47b3c37172dbaae3f6f6258c7eaf5e65d33ce5ab65ffe74dcaf05d4b62  /tmp/lockin.b64" | sha256sum -c -
+          base64 --decode /tmp/lockin.b64 > /tmp/lockin.tar.gz
+          echo "c88e673c79a17154097228897e9b7eeee09d49a7271f298858c98a20e53430a3  /tmp/lockin.tar.gz" | sha256sum -c -
+          mkdir -p /tmp/lockin-source
+          tar -xzf /tmp/lockin.tar.gz -C /tmp/lockin-source
+          test -f /tmp/lockin-source/README.md
+          test -f /tmp/lockin-source/macOS/LockIn.xcodeproj/project.pbxproj
+          test -f /tmp/lockin-source/Chrome/manifest.json
+
+      - name: Replace staging files with LockIn source
+        shell: bash
+        run: |
+          set -euo pipefail
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a /tmp/lockin-source/. .
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Add LockIn macOS and Chrome source"
+          git push origin HEAD:lockin-upload
