@@ -250,7 +250,7 @@ import AppKit
             Task { @MainActor in
                 defer { authenticating=false }
                 do { try await MacAuthentication.verify(); applyAddedTime(minutes:minutes, sessionID:id, phase:phase, started:started) }
-                catch { error="Time wasn't added: \(error.localizedDescription)" }
+                catch { self.error="Time wasn't added: \(error.localizedDescription)" }
             }
         } else { applyAddedTime(minutes:minutes, sessionID:id, phase:phase, started:started) }
     }
@@ -268,7 +268,7 @@ import AppKit
             data=previous
             try? JSONEncoder().encode(previous).write(to:file,options:.atomic)
             if previous.session?.nuclear == true, let end=previous.session?.endDate { try? NuclearWatchdog.install(until:end) }
-            error="Time couldn't be saved: \(error.localizedDescription)"
+            self.error="Time couldn't be saved: \(error.localizedDescription)"
         }
     }
     func startWaiting() {
