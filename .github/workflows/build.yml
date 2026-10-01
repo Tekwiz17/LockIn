@@ -1,4 +1,4 @@
-name: Build LockIn
+name: Build Windows EXE
 on:
   push:
     branches: [main]
@@ -23,53 +23,26 @@ jobs:
         run: dotnet run --project windows/LockIn.CoreTests/LockIn.CoreTests.csproj --configuration Release
       - name: Publish self-contained EXE
         run: dotnet publish windows/LockIn.Windows/LockIn.Windows.csproj --configuration Release --runtime ${{ matrix.arch }} --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=false -p:DebugType=None -p:DebugSymbols=false --output publish/${{ matrix.arch }}
+      - name: Launch the published x64 EXE and check native startup
+        if: matrix.arch == 'win-x64'
+        shell: pwsh
+        run: |
+          $info = [System.Diagnostics.ProcessStartInfo]::new((Resolve-Path 'publish/win-x64/LockIn.exe'))
+          $info.ArgumentList.Add('--smoke-test')
+          $info.UseShellExecute = $false
+          $info.RedirectStandardOutput = $true
+          $info.RedirectStandardError = $true
+          $process = [System.Diagnostics.Process]::Start($info)
+          if (-not $process.WaitForExit(60000)) {
+            $process.Kill($true)
+            throw 'Published EXE startup check timed out.'
+          }
+          Write-Host $process.StandardOutput.ReadToEnd()
+          Write-Host $process.StandardError.ReadToEnd()
+          if ($process.ExitCode -ne 0) { throw "Published EXE startup failed: $($process.ExitCode)" }
       - uses: actions/upload-artifact@v6
         with:
           name: LockIn-Windows-${{ matrix.arch }}
           path: publish/${{ matrix.arch }}/LockIn.exe
           if-no-files-found: error
           retention-days: 30
-  extension:
-    name: Universal browser extension
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Install fixture dependencies
-        run: npm install --prefix "$RUNNER_TEMP/lockin-fixtures" jsdom@26
-      - name: Build and check shared browser resources
-        env:
-          NODE_PATH: ${{ runner.temp }}/lockin-fixtures/node_modules
-        run: |
-          python3 macOS/Scripts/build_extensions.py
-          python3 macOS/Scripts/validate.py
-      - name: Package one universal extension ZIP
-        run: |
-          mkdir -p artifacts
-          python3 - <<'PY'
-          from pathlib import Path
-          from zipfile import ZipFile, ZIP_DEFLATED
-          root = Path('browser-extension')
-          with ZipFile('artifacts/LockIn-Browser-Extension.zip', 'w', ZIP_DEFLATED) as z:
-              for p in sorted(root.rglob('*')):
-                  if p.is_file():
-                      z.write(p, str(Path('LockIn-Browser-Extension') / p.relative_to(root)))
-          PY
-      - uses: actions/upload-artifact@v6
-        with:
-          name: LockIn-Browser-Extension
-          path: artifacts/LockIn-Browser-Extension.zip
-          if-no-files-found: error
-          retention-days: 30
-  macos:
-    name: Mac native build and core tests
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build app and embedded Safari extension
-        run: xcodebuild -project macOS/LockIn.xcodeproj -scheme LockIn -configuration Debug -derivedDataPath "$RUNNER_TEMP/LockInBuild" CODE_SIGN_IDENTITY=- CODE_SIGNING_REQUIRED=NO build
-      - name: Test core session and policy behavior
-        working-directory: macOS
-        run: swift test

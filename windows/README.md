@@ -34,4 +34,6 @@ Data lives under `%LOCALAPPDATA%\LockIn`. Settings are atomically saved; corrupt
 7. Kill only the main process during a timed session and verify recovery; then kill only the watcher. Check resumed state and window restoration after a deadline. This is a recovery test, not a promise that both processes cannot be killed.
 8. Test Block AI on normal Google search and AI Mode, including Never Block exceptions.
 
-Automated core tests run on every build. The source has been compiled against Windows desktop reference assemblies, but the interactive checks above require a real Windows session.
+Actions builds and uploads only the x64 and ARM64 Windows EXEs. Core tests run for both builds. The actual published x64 EXE also runs `--smoke-test` on the Windows runner, checking WPF view rendering, embedded icons, tray initialization, Win32 window enumeration, DPAPI, timer extension, pause/resume/stop and persisted state in an isolated temporary directory. It does not register the URL protocol or recovery during this check. ARM64 publishing is verified, but its runtime and the full interactive checks above require real device tests. No Mac app or extension artifact is produced by Actions.
+
+Windows does not implement taskbar-pin hiding, embedded Safari, Mac bundle-rule import, Touch ID/Windows Hello verification, automatic process termination in Strict mode, or an exact copy of native Mac controls/system appearance. The tray popup replaces the menu bar. See the root README feature comparison.

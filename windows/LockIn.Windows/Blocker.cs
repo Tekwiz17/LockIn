@@ -21,13 +21,13 @@ public sealed class Blocker:IDisposable {
  [DllImport("user32.dll")]static extern bool SetWindowPlacement(IntPtr handle,ref Placement placement);
  [DllImport("user32.dll")]static extern bool ShowWindow(IntPtr handle,int command);
  [DllImport("user32.dll")]static extern int GetWindowTextLength(IntPtr handle);
- readonly Engine engine;readonly Window owner;readonly string journal=Path.Combine(Engine.DirectoryPath,"hidden-windows.json");
+ readonly Engine engine;readonly Window owner;readonly string journal;
  readonly List<WindowSnapshot> hidden=new();Window? shield;string? shieldPath;readonly Dictionary<string,DateTimeOffset> closeGrace=new(StringComparer.OrdinalIgnoreCase);
  public static readonly JsonSerializerOptions JournalJson=new(Engine.Json){IncludeFields=true};
- public Blocker(Engine engine,Window owner){this.engine=engine;this.owner=owner;RestoreJournal();}
+ public Blocker(Engine engine,Window owner,string? journalDirectory=null){this.engine=engine;this.owner=owner;journal=Path.Combine(journalDirectory??Engine.DirectoryPath,"hidden-windows.json");RestoreJournal(journalDirectory);}
  static bool SameProcess(WindowSnapshot w){try{using var p=Process.GetProcessById(w.Pid);GetWindowThreadProcessId(new IntPtr(w.Handle),out var pid);return pid==w.Pid&&p.StartTime.ToUniversalTime().Ticks==w.Started&&Policy.SamePath(p.MainModule?.FileName??"",w.Path);}catch{return false;}}
  static void Restore(WindowSnapshot w){if(!SameProcess(w))return;var place=w.Placement;place.Length=Marshal.SizeOf<Placement>();SetWindowPlacement(new IntPtr(w.Handle),ref place);ShowWindow(new IntPtr(w.Handle),place.ShowCmd is 2 or 6 or 7?7:place.ShowCmd==3?3:4);}
- public static void RestoreJournal(){var file=Path.Combine(Engine.DirectoryPath,"hidden-windows.json");if(!File.Exists(file))return;var windows=JsonSerializer.Deserialize<List<WindowSnapshot>>(File.ReadAllText(file),JournalJson)??new();foreach(var w in windows)Restore(w);File.Delete(file);}
+ public static void RestoreJournal(string? directory=null){var file=Path.Combine(directory??Engine.DirectoryPath,"hidden-windows.json");if(!File.Exists(file))return;var windows=JsonSerializer.Deserialize<List<WindowSnapshot>>(File.ReadAllText(file),JournalJson)??new();foreach(var w in windows)Restore(w);File.Delete(file);}
  void Persist(){var temp=journal+".tmp";File.WriteAllText(temp,JsonSerializer.Serialize(hidden,JournalJson));File.Move(temp,journal,true);}
  static bool Protected(string path,int pid){var own=Environment.ProcessPath??"";var system=Environment.GetFolderPath(Environment.SpecialFolder.Windows);return pid==Environment.ProcessId||Policy.SamePath(path,own)||path.StartsWith(system+Path.DirectorySeparatorChar,StringComparison.OrdinalIgnoreCase);}
  public static List<AppRule> Applications(){var result=new List<AppRule>();foreach(var p in Process.GetProcesses()){try{if(p.MainWindowHandle==IntPtr.Zero)continue;var path=p.MainModule?.FileName;if(path==null||Protected(path,p.Id))continue;if(!result.Any(a=>Policy.SamePath(a.Path,path)))result.Add(new(){Path=path,Name=Path.GetFileNameWithoutExtension(path)});}catch{}finally{p.Dispose();}}return result.OrderBy(x=>x.Name).ToList();}

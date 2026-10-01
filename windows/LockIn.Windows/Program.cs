@@ -9,6 +9,7 @@ namespace LockIn;
 public static class Program {
  static string Identity=>WindowsIdentity.GetCurrent().User!.Value.Replace('-','_');
  [STAThread]public static void Main(string[] args){
+  if(args.Contains("--smoke-test")){Environment.ExitCode=SmokeTest.Run();return;}
   if(args.Contains("--watchdog")){Recovery.Watch();return;}
   using var mutex=new Mutex(true,"Local\\LockInApp-"+Identity,out var acquired);
   if(!acquired){try{using var pipe=new NamedPipeClientStream(".","LockIn-"+Identity,PipeDirection.Out,PipeOptions.None);pipe.Connect(2500);using var writer=new StreamWriter(pipe);writer.WriteLine(args.FirstOrDefault(x=>x.StartsWith("lockin://",StringComparison.OrdinalIgnoreCase))??"open");}catch{}return;}

@@ -70,7 +70,23 @@ dotnet run --project windows/LockIn.CoreTests/LockIn.CoreTests.csproj
 dotnet publish windows/LockIn.Windows/LockIn.Windows.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:PublishTrimmed=false -o publish
 ```
 
-The workflow automatically tests and publishes x64 and ARM64 EXEs and packages the universal browser extension on pushes to `main`, pull requests and manual runs. It uploads Actions artifacts; it does **not** create Releases. The owner publishes release assets separately.
+The workflow automatically tests and publishes **only Windows x64 and ARM64 EXEs** on pushes to `main`, pull requests and manual runs. Each artifact contains `LockIn.exe`; GitHub wraps artifact downloads in a ZIP. The published x64 EXE is launched on a Windows runner to check native startup and view rendering. ARM64 is compiled and packaged on the x64 runner; it still needs a real ARM64 device test. Actions does not build or upload the Mac app or browser extension. It uploads Actions artifacts; it does **not** create Releases. The owner publishes release assets separately.
+
+## Windows features that are not supported
+
+| Mac feature or behavior | Windows version |
+| --- | --- |
+| Hide blocked pinned shortcuts in the Dock | Not implemented for taskbar pins. Windows hides blocked app windows and restores their placement; pinned shortcuts remain. |
+| macOS menu bar popup | Replaced by a Windows system tray popup. |
+| Embedded Safari extension / Safari settings shortcut | Mac-only. On Windows, use the universal extension in Chrome, Brave, Edge or Firefox. |
+| Mac app-bundle selection and rules | Select Windows `.exe` paths. Mac app rules and browser pairings are not imported or shared between devices. |
+| Touch ID / macOS passcode prompt | Uses the current Windows account password. Windows Hello PIN, face and fingerprint authentication are not implemented. |
+| Strict mode requests normal app termination automatically | Windows hides windows. Strict mode removes Quit App from the shield; it does not automatically close or forcibly terminate the process. |
+| Native macOS controls and system appearance | Windows uses WPF with the purple theme; it does not reproduce every Mac control, animation or automatic light/dark appearance. |
+
+Elevated or protected apps that Windows will not let LockIn inspect can remain unblocked. The recovery watcher runs per user; it is not a privileged Windows service and cannot prevent an administrator or Task Manager from terminating both processes. Firefox's unsigned temporary extension still needs loading after browser restarts. These limitations do not change Focus/Pomodoro, presets, Block AI, Add Time, exit checks or the Nuclear emergency quota.
+
+The extension already uses **`manifest_version: 3`**. Chromium uses its service worker; Firefox uses the accompanying background scripts. Keeping both entries follows [Mozilla's cross-browser Manifest V3 guidance](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/background#cross-browser_manifest_v3_background_scripts). Use current browser versions (121+ minimum).
 
 ## Install the browser extension
 
@@ -115,9 +131,9 @@ Recovery can reopen LockIn after a single process disappears. It is **not Force 
 
 - `macOS/`: Xcode project, Swift source, embedded Safari resources, recovery helper, build scripts and tests.
 - `windows/`: native WPF app, loopback sync, per-user recovery, tray controls and portable core tests.
-- `.github/workflows/build.yml`: Windows EXE builds, universal extension ZIP and Mac native build checks.
-- `browser-extension/`: universal extension source and ready-to-load manifest.
+- `.github/workflows/build.yml`: Windows-only EXE builds, core checks and published x64 startup checks.
+- `browser-extension/`: universal Manifest V3 extension source and ready-to-load manifest.
 
-The portable checks cover policy, browser naming, AI hiding fixtures, browser sync and recovery simulations. **57 browser/recovery tests and 36 Windows core checks pass**, plus Swift grammar/project checks and Windows desktop reference compilation. GitHub Actions adds native Mac compilation and Windows publish checks. Actual browser installation and Windows GUI behavior need testing on those platforms. On a Mac, run `macOS/Scripts/verify-mac.sh` and follow `macOS/TESTING.md`.
+The portable checks cover policy, browser naming, AI hiding fixtures, browser sync and recovery simulations. **57 browser/recovery tests and 36 Windows core checks pass**, plus Swift grammar/project checks and Windows desktop reference compilation. The previous native Mac build and its 21 core tests passed. GitHub Actions now checks Windows publishing and actual x64 EXE startup. Full interactive behavior, browser installation, credentials and ARM64 runtime still need hands-on platform tests. On a Mac, run `macOS/Scripts/verify-mac.sh` and follow `macOS/TESTING.md`.
 
 The common background manifest follows [Mozilla's cross-browser guidance](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/background#cross-browser_manifest_v3_background_scripts). Browser-specific native behavior still needs testing.
