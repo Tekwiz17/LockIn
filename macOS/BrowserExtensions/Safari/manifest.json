@@ -1,0 +1,72 @@
+{
+  "manifest_version": 3,
+  "name": "LockIn",
+  "version": "1.6.3",
+  "description": "Your Mac focus sessions, in your browser. Local sync only.",
+  "permissions": [
+    "storage",
+    "alarms",
+    "tabs",
+    "declarativeNetRequest"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "action": {
+    "default_title": "LockIn",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/16.png",
+      "32": "icons/32.png"
+    }
+  },
+  "icons": {
+    "16": "icons/16.png",
+    "32": "icons/32.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+  "background": {
+    "scripts": [
+      "ai-policy.js",
+      "rules.js",
+      "browser-identity.js",
+      "background.js"
+    ],
+    "persistent": false
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "ai-policy.js",
+        "ai-hide.js",
+        "guard.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "blocked.html",
+        "blocked.js",
+        "ai-policy.js",
+        "rules.js",
+        "style.css",
+        "icons/*"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ]
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'none'; connect-src http://127.0.0.1:19287;"
+  }
+}

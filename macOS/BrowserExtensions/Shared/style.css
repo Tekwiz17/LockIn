@@ -1,0 +1,10 @@
+:root{color-scheme:light dark;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:light-dark(#252438,#eeeefa);background:light-dark(#f7f7fb,#191923);--accent:#6c63ff}*{box-sizing:border-box}body{margin:0}main{padding:26px}header{display:flex;align-items:center;gap:12px;letter-spacing:1px}h1{font-size:26px;font-weight:600;line-height:1.3;letter-spacing:-.6px}p{line-height:1.5;white-space:pre-line}.muted,label{color:light-dark(#676574,#aaa8bc);font-size:13px}.eyebrow{font-size:11px;font-weight:700;letter-spacing:2px;margin-top:28px;color:var(--accent)}button,.open{display:block;width:100%;font:inherit;font-size:14px;padding:12px 16px;border-radius:12px;border:0;background:var(--accent);color:white;cursor:pointer;text-align:center;text-decoration:none;margin-top:12px}button:disabled{opacity:.5;cursor:wait}.secondary{color:inherit;background:light-dark(#e9e8f4,#2b2a3c)}input{font:inherit;width:100%;padding:12px;border:1px solid light-dark(#ccc9df,#535069);border-radius:10px;margin:10px 0;background:transparent;color:inherit}input:focus,button:focus-visible,a:focus-visible{outline:3px solid #9a95ff;outline-offset:3px}[hidden]{display:none!important}.popup{width:340px;min-height:360px}.blocked{min-height:100vh;display:grid;place-items:center}.blocked main{width:min(100%,580px);text-align:center}.blocked header{justify-content:center}.blocked .open,.blocked button{max-width:230px;margin-left:auto;margin-right:auto}.lock{font-size:86px;color:var(--accent);margin-top:38px}.countdown{font-size:64px;font-weight:300;font-variant-numeric:tabular-nums;margin:28px 0}.blocked h1{overflow-wrap:anywhere}
+
+.appButton { display:block; text-align:center; padding:10px 14px; margin:10px 0; border-radius:10px; background:#6c63ff; color:white; text-decoration:none; font-weight:600; }
+#controls { display:flex; gap:8px; }
+#controls[hidden], .appButton[hidden] { display:none; }
+#controls button { flex:1; }
+
+.secondary {background:var(--accent);color:white} .countdown {color:var(--accent)}
+
+header strong {color:var(--accent)}
