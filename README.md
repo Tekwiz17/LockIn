@@ -84,11 +84,13 @@ The workflow automatically tests and publishes **only Windows x64 and ARM64 EXEs
 | Strict mode requests normal app termination automatically | Windows hides windows. Strict mode removes Quit App from the shield; it does not automatically close or forcibly terminate the process. |
 | Native macOS controls and system appearance | Windows uses WPF with the purple theme; it does not reproduce every Mac control, animation or automatic light/dark appearance. |
 
-Elevated or protected apps that Windows will not let LockIn inspect can remain unblocked. The recovery watcher runs per user; it is not a privileged Windows service and cannot prevent an administrator or Task Manager from terminating both processes. Firefox's unsigned temporary extension still needs loading after browser restarts. These limitations do not change Focus/Pomodoro, presets, Block AI, Add Time, exit checks or the Nuclear emergency quota.
+Elevated or protected apps that Windows will not let LockIn inspect can remain unblocked. The recovery watcher runs per user; it is not a privileged Windows service and cannot prevent an administrator or Task Manager from terminating both processes. Firefox's unsigned development extension still needs loading after browser restarts; install the official Mozilla Add-ons version for regular use. These limitations do not change Focus/Pomodoro, presets, Block AI, Add Time, exit checks or the Nuclear emergency quota.
 
 The extension already uses **`manifest_version: 3`**. Chromium uses its service worker; Firefox uses the accompanying background scripts. Keeping both entries follows [Mozilla's cross-browser Manifest V3 guidance](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/manifest.json/background#cross-browser_manifest_v3_background_scripts). Use current browser versions (121+ minimum).
 
 ## Install the browser extension
+
+**Official Firefox add-on:** [LockIn Extension on Mozilla Add-ons](https://addons.mozilla.org/en-US/firefox/addon/lockin-extension/). Install it from this page, then pair it with the LockIn desktop app using the steps below.
 
 Unzip `LockIn-Browser-Extension.zip` and keep the extracted folder in a stable location. If using this repository directly, use its `browser-extension` folder. Grant site access on the sites you want to enforce, including Google for Block AI.
 
@@ -97,9 +99,9 @@ Unzip `LockIn-Browser-Extension.zip` and keep the extracted folder in a stable l
 | Chrome | `chrome://extensions` | Enable Developer mode → Load unpacked → choose the folder containing `manifest.json`. |
 | Brave | `brave://extensions` | Enable Developer mode → Load unpacked → choose that same folder. |
 | Edge | `edge://extensions` | Enable Developer mode → Load unpacked → choose that same folder. |
-| Firefox | `about:debugging#/runtime/this-firefox` | Load Temporary Add-on → choose that folder's `manifest.json`. |
+| Firefox | [Official Mozilla Add-ons listing](https://addons.mozilla.org/en-US/firefox/addon/lockin-extension/) | Select Add to Firefox, approve the requested permissions, then pair with LockIn. |
 
-**Firefox's unsigned temporary add-on is removed when Firefox restarts.** Reload it after a restart. A permanent installation in standard Firefox requires a Mozilla-signed add-on; this source ZIP is not one. See [Mozilla's temporary-installation guide](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/). Check `about:addons` and allow the extension to run on all required sites if Firefox asks for site access.
+**For Firefox development or source-ZIP testing:** open `about:debugging#/runtime/this-firefox`, select Load Temporary Add-on and choose `manifest.json`. This unsigned temporary add-on is removed when Firefox restarts. Reload it after a restart. Use the official Mozilla Add-ons listing above for regular installation; the source ZIP is not a signed store package. See [Mozilla's temporary-installation guide](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/). Check `about:addons` and allow the extension to run on all required sites if Firefox asks for site access.
 
 ### Safari
 
@@ -117,7 +119,7 @@ Keep LockIn open. Click its extension icon, then **Connect Automatically**. Allo
 
 Backup: create a connection code in **LockIn Settings → Browsers**, enter it in the extension and approve the native prompt. Codes last two minutes and work once. Pair each browser separately. If local-network access is requested, allow the browser to contact the desktop app; sync listens only on `127.0.0.1:19287`.
 
-When updating, replace files inside the existing unpacked folder and Reload the extension. Reload already-open websites too so they get the new content scripts. Firefox temporary installation may need repeating.
+When updating, replace files inside the existing unpacked folder and Reload the extension. Reload already-open websites too so they get the new content scripts. Firefox development installations may need repeating; use the official Mozilla Add-ons listing for the store version.
 
 ## Limits and privacy
 
